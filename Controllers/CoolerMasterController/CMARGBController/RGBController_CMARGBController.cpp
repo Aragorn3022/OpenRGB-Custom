@@ -418,7 +418,7 @@ void RGBController_CMARGBController::SetupZones()
 
         if(!(zones[channel_idx].flags & ZONE_FLAG_MANUALLY_CONFIGURED_SIZE))
         {
-            zones[channel_idx].leds_count           = 0;
+            zones[channel_idx].leds_count           = CM_ARGB_DEFAULT_LED_COUNT;
         }
 
         if(!(zones[channel_idx].flags & ZONE_FLAG_MANUALLY_CONFIGURED_TYPE))

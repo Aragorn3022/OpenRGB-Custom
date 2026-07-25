@@ -65,7 +65,11 @@ std::string CMARGBController::GetVersion()
     \*-----------------------------------------------------*/
     std::string serial_string = GetSerial();
 
-    if(serial_string == CM_ARGB_FW0023)
+    if(serial_string == CM_ARGB_FW0000)
+    {
+        return("0000");
+    }
+    else if(serial_string == CM_ARGB_FW0023)
     {
         return("0023");
     }

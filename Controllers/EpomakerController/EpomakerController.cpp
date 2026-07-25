@@ -9,7 +9,6 @@
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
 \*---------------------------------------------------------*/
 
-#include <math.h>
 #include "EpomakerController.h"
 #include "LogManager.h"
 #include "StringUtils.h"
@@ -68,7 +67,11 @@ std::string EpomakerController::GetLocation()
 void EpomakerController::SetMode(unsigned char mode, unsigned char speed, unsigned char brightness)
 {
     current_mode  = mode;
-    current_speed = speed;
+    /*---------------------------------------------------------*\
+    | RongYuan firmware stores speed in reverse order:          |
+    | OpenRGB 0 (slow) -> protocol 5, OpenRGB 5 (fast) -> 0.   |
+    \*---------------------------------------------------------*/
+    current_speed = EPOMAKER_SPEED_MAX - speed;
     current_brightness = brightness;
 
     SendUpdate();
@@ -113,16 +116,18 @@ void EpomakerController::SendUpdate()
     buffer[EPOMAKER_BYTE_GREEN]      = current_green;
     buffer[EPOMAKER_BYTE_BLUE]       = current_blue;
 
-    int sum_bits = 0;
+    unsigned int sum_bits = 0;
     for(int i = EPOMAKER_BYTE_COMMAND; i <= EPOMAKER_BYTE_BLUE; i++)
     {
         sum_bits += buffer[i];
     }
 
-    int next_pow2 = (int)(pow(2, ceil(log2((double)(sum_bits)))));
-    int filler = next_pow2 - sum_bits - 1;
-
-    buffer[EPOMAKER_BYTE_FILLER]     = filler;
+    /*---------------------------------------------------------*\
+    | Bit-8 checksum used by RongYuan RY5088/YC3121 firmware.   |
+    | The command through blue bytes plus checksum equal 0xFF   |
+    | modulo 256.                                               |
+    \*---------------------------------------------------------*/
+    buffer[EPOMAKER_BYTE_FILLER] = static_cast<unsigned char>(0xFF - (sum_bits & 0xFF));
 
     int send_buffer_result = hid_send_feature_report(dev, buffer, (sizeof(buffer) / sizeof(buffer[0])));
     if(send_buffer_result<0)

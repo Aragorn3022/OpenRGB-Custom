@@ -27,6 +27,7 @@
 #define HID_MAX_STR                     255
 
 #define CM_ARGB_BRIGHTNESS_MAX          255
+#define CM_ARGB_DEFAULT_LED_COUNT       6
 #define CM_ARGB_FW0000                  std::string("A201804091608")
 #define CM_ARGB_FW0023                  std::string("A202011171238")
 #define CM_ARGB_FW0028                  std::string("A202105291658")
